@@ -1,4 +1,4 @@
-#Boardgame Setup Randomizer Carson City : Big Box
+# Boardgame Setup Randomizer Carson City : Big Box
 🤠 Carson City: Big Box – Setup Randomiser
 
 Age of vibe coding! Carson City Setup Randomiser is a digital companion for the legendary board game Carson City: Big Box by Xavier Georges. Stop fumbling with dice and bags—get your frontier town built in seconds.
