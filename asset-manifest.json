@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/BGSRCarsonCity/static/css/main.b1f91cea.css",
-    "main.js": "/BGSRCarsonCity/static/js/main.f51cd061.js",
+    "main.css": "/BGSRCarsonCity/static/css/main.ccb8491e.css",
+    "main.js": "/BGSRCarsonCity/static/js/main.4d335bfb.js",
     "static/js/453.9c30c2eb.chunk.js": "/BGSRCarsonCity/static/js/453.9c30c2eb.chunk.js",
     "index.html": "/BGSRCarsonCity/index.html",
-    "main.b1f91cea.css.map": "/BGSRCarsonCity/static/css/main.b1f91cea.css.map",
-    "main.f51cd061.js.map": "/BGSRCarsonCity/static/js/main.f51cd061.js.map",
+    "main.ccb8491e.css.map": "/BGSRCarsonCity/static/css/main.ccb8491e.css.map",
+    "main.4d335bfb.js.map": "/BGSRCarsonCity/static/js/main.4d335bfb.js.map",
     "453.9c30c2eb.chunk.js.map": "/BGSRCarsonCity/static/js/453.9c30c2eb.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b1f91cea.css",
-    "static/js/main.f51cd061.js"
+    "static/css/main.ccb8491e.css",
+    "static/js/main.4d335bfb.js"
   ]
 }
