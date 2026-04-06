@@ -1,0 +1,283 @@
+import React, { useState, useEffect } from 'react';
+import { Home, Mountain, Pickaxe, Landmark, RefreshCw, Users, AlertTriangle, ChevronRight, Info } from 'lucide-react';
+
+const PLAYER_COLORS = [
+  { id: 'orange', name: 'Orange', hex: '#f97316', dark: '#c2410c', text: 'text-white' },
+  { id: 'green', name: 'Green', hex: '#22c55e', dark: '#15803d', text: 'text-white' },
+  { id: 'blue', name: 'Blue', hex: '#3b82f6', dark: '#1d4ed8', text: 'text-white' },
+  { id: 'yellow', name: 'Yellow', hex: '#fde047', dark: '#a16207', text: 'text-black' },
+  { id: 'brown', name: 'Brown', hex: '#a16207', dark: '#78350f', text: 'text-white' },
+  { id: 'red', name: 'Red', hex: '#ef4444', dark: '#b91c1c', text: 'text-white' },
+];
+
+// Helper Component for the 3D Cylinder Token
+const CylinderToken = ({ color, size = "md", isActive = true }) => {
+  const scale = size === "sm" ? "scale-75" : "scale-110";
+  return (
+    <div className={`relative ${scale} transition-all duration-300 ${!isActive ? 'opacity-30 grayscale-[0.5]' : 'drop-shadow-md'}`}>
+      {/* Side of cylinder */}
+      <div 
+        className="w-12 h-10 rounded-b-full" 
+        style={{ backgroundColor: color.dark }}
+      />
+      {/* Top of cylinder */}
+      <div 
+        className="absolute -top-3 w-12 h-8 rounded-full border-t border-white/20" 
+        style={{ backgroundColor: color.hex }}
+      />
+    </div>
+  );
+};
+
+export default function App() {
+  const [setup, setSetup] = useState(null);
+  const [selectedPlayers, setSelectedPlayers] = useState(['yellow', 'red', 'blue']); 
+  const [error, setError] = useState("");
+
+  const togglePlayer = (id) => {
+    setSelectedPlayers(prev => 
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  };
+
+  const buildingBag = [
+    ...Array(4).fill('Drugstore'), ...Array(4).fill('Bank'),
+    ...Array(3).fill('Saloon'), ...Array(3).fill('Hotel'),
+    ...Array(2).fill('Church'), ...Array(2).fill('Prison'),
+    ...Array(2).fill('General Store'), ...Array(2).fill('School'),
+    ...Array(2).fill('Blacksmith'), 'Train Station'
+  ];
+
+  const generateSetup = () => {
+    if (selectedPlayers.length < 2) {
+      setError("At least 2 players are required for a game of Carson City.");
+      return;
+    }
+    setError("");
+
+    const getRandomCoord = () => Math.floor(Math.random() * 8) + 1;
+    const center = { row: getRandomCoord(), col: getRandomCoord() };
+
+    const mnts = [];
+    while (mnts.length < 9) {
+      const r = getRandomCoord();
+      const c = getRandomCoord();
+      if (!(r === center.row && c === center.col) && !mnts.some(m => m.row === r && m.col === c)) {
+        mnts.push({ row: r, col: c });
+      }
+    }
+
+    const bagCopy = [...buildingBag].sort(() => Math.random() - 0.5);
+    const drawnBuildings = bagCopy.slice(0, 3);
+
+    const shuffledPlayers = [...selectedPlayers]
+      .map(id => PLAYER_COLORS.find(p => p.id === id))
+      .sort(() => Math.random() - 0.5);
+
+    setSetup({ center, mountains: mnts, buildings: drawnBuildings, turnOrder: shuffledPlayers });
+  };
+
+  useEffect(() => { generateSetup(); }, []);
+
+  return (
+    <div className="min-h-screen bg-[#f4e4bc] text-[#3b2f2f] font-serif p-4 md:p-8 flex flex-col items-center">
+      
+      <header className="max-w-5xl w-full text-center mb-8 border-b-2 border-[#8b5a2b] pb-4">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-wider text-[#5c4033] uppercase mb-2">
+          Carson City
+        </h1>
+        <h2 className="text-xl md:text-2xl text-[#8b5a2b] italic">
+          Big Box Setup Randomiser
+        </h2>
+      </header>
+
+      {/* 3D Player Selection */}
+      <section className="w-full max-w-5xl mb-8 bg-[#e8d5a6] p-8 rounded-md shadow-lg border-2 border-[#8b5a2b]">
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <Users className="w-6 h-6 text-[#5c4033]" />
+          <h3 className="text-xl font-bold uppercase tracking-widest text-[#5c4033]">
+            Select Player Tokens
+          </h3>
+        </div>
+        
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-8 justify-items-center">
+          {PLAYER_COLORS.map((player) => {
+            const isActive = selectedPlayers.includes(player.id);
+            return (
+              <button
+                key={player.id}
+                onClick={() => togglePlayer(player.id)}
+                className="group flex flex-col items-center gap-4 outline-none"
+              >
+                <CylinderToken color={player} isActive={isActive} />
+                <span className={`text-xs font-bold uppercase tracking-tighter transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}>
+                  {player.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {error && (
+          <div className="mt-6 flex items-center justify-center gap-2 text-red-700 font-bold bg-red-100 p-3 rounded border border-red-300">
+            <AlertTriangle className="w-5 h-5" />
+            {error}
+          </div>
+        )}
+      </section>
+
+      {setup && (
+        <div className="max-w-5xl w-full flex flex-col gap-8">
+          
+          {/* Horizontal Turn Order Track */}
+          <div className="w-full bg-[#e8d5a6] p-6 rounded-md shadow-lg border-2 border-[#8b5a2b]">
+            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-[#5c4033] mb-6 text-center">
+              Round 1 Turn Order
+            </h3>
+            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
+              {setup.turnOrder.map((player, index) => (
+                <div key={player.id} className="flex items-center gap-4 group">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-[#5c4033] text-[#f4e4bc] flex items-center justify-center font-bold text-sm shadow-inner">
+                      {index + 1}
+                    </div>
+                    <CylinderToken color={player} size="sm" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">{player.name}</span>
+                  </div>
+                  {index < setup.turnOrder.length - 1 && (
+                    <ChevronRight className="w-6 h-6 text-[#8b5a2b] opacity-30 mt-[-10px]" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Map Visualisation */}
+            <div className="bg-[#e8d5a6] p-6 rounded-md shadow-lg border-2 border-[#8b5a2b] flex flex-col items-center">
+              <h3 className="text-xl font-bold text-center mb-6 uppercase tracking-widest text-[#5c4033] border-b border-[#a0785a] w-full pb-2">
+                The Map
+              </h3>
+              <div className="flex">
+                <div className="flex flex-col justify-around pr-3 text-xs font-bold text-[#8b5a2b]">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(n => <div key={`r-${n}`}>{n}</div>)}
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-around pb-3 text-xs font-bold text-[#8b5a2b]">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(n => <div key={`c-${n}`}>{n}</div>)}
+                  </div>
+                  <div className="grid grid-cols-8 grid-rows-8 gap-0 border-4 border-[#5c4033] bg-[#c3a473] shadow-inner">
+                    {[...Array(64)].map((_, index) => {
+                      const row = Math.floor(index / 8) + 1;
+                      const col = (index % 8) + 1;
+                      const isCenter = setup.center.row === row && setup.center.col === col;
+                      const isMnt = setup.mountains.some(m => m.row === row && m.col === col);
+                      const cellBg = (row + col) % 2 === 0 ? 'bg-[#d2b48c]' : 'bg-[#e1c699]';
+
+                      return (
+                        <div key={index} className={`aspect-square border border-[#a0785a]/40 relative flex items-center justify-center ${cellBg}`}>
+                          {isCenter && (
+                            <>
+                              <Home className="w-3/5 h-3/5 text-[#8b0000] z-20 fill-current drop-shadow-sm" />
+                              <div className="absolute -top-[3px] left-0 right-0 h-[6px] bg-[#704214] z-10 rounded-sm border-x border-black/20" />
+                              <div className="absolute -bottom-[3px] left-0 right-0 h-[6px] bg-[#704214] z-10 rounded-sm border-x border-black/20" />
+                              <div className="absolute -left-[3px] top-0 bottom-0 w-[6px] bg-[#704214] z-10 rounded-sm border-y border-black/20" />
+                              <div className="absolute -right-[3px] top-0 bottom-0 w-[6px] bg-[#704214] z-10 rounded-sm border-y border-black/20" />
+                            </>
+                          )}
+                          {isMnt && <Mountain className="w-4/5 h-4/5 text-[#4a4a4a] fill-current opacity-90 z-0 drop-shadow-sm" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+              <p className="mt-8 text-xs italic text-[#5c4033] text-center">
+                Initial roads surround City Centre (Red House). Mountains are grey.
+              </p>
+            </div>
+
+            {/* Building Track & Controls */}
+            <div className="flex flex-col gap-8">
+              <div className="bg-[#e8d5a6] p-6 rounded-md shadow-lg border-2 border-[#8b5a2b]">
+                <h3 className="text-xl font-bold mb-6 uppercase tracking-widest text-[#5c4033] border-b border-[#a0785a] pb-2">
+                  Building Track
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-2 bg-[#d2b48c]/50 rounded border border-[#a0785a] text-xs opacity-60">
+                    <span className="font-bold w-12">$3/$4</span>
+                    <span>Ranch / Mine (Fixed)</span>
+                  </div>
+                  {[5, 6, 8].map((price, i) => (
+                    <div key={price} className="flex items-center gap-4 p-3 bg-[#ffe4b5] rounded border-2 border-[#cd853f] shadow-sm transform transition-all hover:scale-[1.02]">
+                      <div className="bg-green-800 text-white font-bold px-3 py-1 rounded-sm text-sm">
+                        ${price}
+                      </div>
+                      <div className="flex-1 flex items-center gap-3">
+                        <Landmark className="w-5 h-5 text-[#cd853f]" />
+                        <span className="text-lg font-bold text-[#8b0000]">{setup.buildings[i]}</span>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-3 p-2 bg-[#d2b48c]/50 rounded border border-[#a0785a] text-xs opacity-60">
+                    <span className="font-bold w-12">$10/12</span>
+                    <span>Ranch / Mine (Fixed)</span>
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                onClick={generateSetup}
+                className="w-full flex items-center justify-center gap-3 py-5 bg-[#8b0000] text-[#f4e4bc] font-bold text-2xl uppercase tracking-[0.15em] rounded border-b-4 border-[#5c4033] hover:bg-[#a52a2a] transition-all shadow-xl active:translate-y-1 active:border-b-0"
+              >
+                <RefreshCw className="w-7 h-7" />
+                Randomise Setup
+              </button>
+
+              <div className="bg-[#e8d5a6] p-5 rounded-md border-2 border-dashed border-[#8b5a2b]">
+                <h4 className="font-bold uppercase mb-3 text-[#5c4033] flex items-center gap-2">
+                  <Info className="w-4 h-4" /> Quick Start Checklist
+                </h4>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 opacity-80 text-xs list-disc pl-4 mb-4">
+                  <li>$15 starting funds per player.</li>
+                  <li>1 Road tile for each player.</li>
+                  <li>1 Revolver and 3 Cowboys.</li>
+                  <li>Initial Characters: 1 to 7.</li>
+                </ul>
+
+                {/* New Building Helper Section */}
+                <h4 className="font-bold uppercase mb-3 text-[#5c4033] border-t border-[#8b5a2b]/30 pt-3">
+                  Building Reference
+                </h4>
+                <div className="space-y-4 text-[10px] leading-tight opacity-90">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h5 className="font-bold underline mb-1">Residential Synergy</h5>
+                      <p><strong>Saloon/Drugstore:</strong> High income from adjacent Houses.</p>
+                      <p className="mt-1"><strong>Church/School:</strong> Income from Houses; reduces duel risks nearby.</p>
+                      <p className="mt-1"><strong>Hotel:</strong> High income from Houses AND Mountains.</p>
+                    </div>
+                    <div>
+                      <h5 className="font-bold underline mb-1">Industrial & Rural</h5>
+                      <p><strong>Gold Mine:</strong> Must be adjacent to Mountains for income.</p>
+                      <p className="mt-1"><strong>Ranch:</strong> Income from adjacent Empty Parcels.</p>
+                      <p className="mt-1"><strong>Blacksmith:</strong> Income from adjacent Buildings.</p>
+                    </div>
+                  </div>
+                  <div className="bg-[#d2b48c]/30 p-2 rounded">
+                    <h5 className="font-bold underline mb-1">Infrastructure Rules</h5>
+                    <ul className="list-disc pl-3 space-y-1">
+                      <li><strong>Roads:</strong> Must connect to City Centre or existing Roads.</li>
+                      <li><strong>Placement:</strong> Buildings must be adjacent to a Road (except Ranches/Mines in specific variants).</li>
+                      <li><strong>Houses:</strong> Placed by players to boost nearby businesses.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
