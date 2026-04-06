@@ -13,6 +13,27 @@ const HouseIcon = () => (
   </svg>
 );
 
+// Updated Road Requirement Icon to look like the black wooden game piece
+const RoadReqIcon = () => (
+  <div className="flex items-center justify-center w-10 h-5" title="Must connect to road">
+    <svg viewBox="0 0 100 40" className="w-full h-full filter drop-shadow-md">
+      {/* Side/Shadow Depth */}
+      <rect x="5" y="15" width="90" height="18" rx="2" fill="#000000" />
+      {/* Top Face */}
+      <rect x="5" y="10" width="90" height="18" rx="2" fill="#2a2a2a" stroke="#1a1a1a" strokeWidth="1" />
+      {/* Subtle Wood Grain/Highlight */}
+      <rect x="10" y="13" width="80" height="2" rx="1" fill="#444444" opacity="0.4" />
+    </svg>
+  </div>
+);
+
+const HouseReqIcon = ({ count = 1 }) => (
+  <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-red-100 border border-red-300 rounded shadow-sm" title={`Must build ${count} House(s)`}>
+    <Home className="w-3.5 h-3.5 text-red-700 fill-current" />
+    {count > 1 && <span className="text-[10px] font-black text-red-700">x{count}</span>}
+  </div>
+);
+
 const RanchIcon = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <rect x="5" y="5" width="90" height="90" rx="4" fill="#2d5a27" stroke="#1a3517" strokeWidth="2" />
@@ -74,7 +95,11 @@ const HotelIcon = () => (
 const ChurchIcon = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <rect x="5" y="5" width="90" height="90" rx="4" fill="#dcdcdc" stroke="#a9a9a9" strokeWidth="2" />
-    <path d="M50 20 V35 M45 25 H55" stroke="#8b0000" strokeWidth="2" />
+    <rect x="35" y="45" width="30" height="40" fill="#ffffff" stroke="#a9a9a9" strokeWidth="1" />
+    <rect x="42" y="30" width="16" height="15" fill="#ffffff" stroke="#a9a9a9" strokeWidth="1" />
+    <path d="M40 30 L50 15 L60 30 Z" fill="#ffffff" stroke="#a9a9a9" strokeWidth="1" />
+    <path d="M50 18 V28 M46 22 H54" stroke="#8b0000" strokeWidth="1.5" />
+    <rect x="46" y="72" width="8" height="13" fill="#8b5a2b" rx="1" />
     <text x="12" y="25" fontSize="16" fontWeight="bold" fill="#5c4033">$0</text>
   </svg>
 );
@@ -82,8 +107,14 @@ const ChurchIcon = () => (
 const PrisonIcon = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <rect x="5" y="5" width="90" height="90" rx="4" fill="#5a5a5a" stroke="#2a2a2a" strokeWidth="2" />
-    <circle cx="65" cy="85" r="8" fill="#f4e4bc" stroke="#2a2a2a" />
-    <circle cx="82" cy="85" r="8" fill="#f4e4bc" stroke="#2a2a2a" />
+    <rect x="25" y="35" width="50" height="50" fill="#808080" stroke="#2a2a2a" strokeWidth="1.5" />
+    <rect x="32" y="45" width="10" height="10" fill="#2a2a2a" />
+    <line x1="37" y1="45" x2="37" y2="55" stroke="#808080" strokeWidth="1" />
+    <rect x="58" y="45" width="10" height="10" fill="#2a2a2a" />
+    <line x1="63" y1="45" x2="63" y2="55" stroke="#808080" strokeWidth="1" />
+    <rect x="42" y="65" width="16" height="20" fill="#2a2a2a" rx="1" />
+    <circle cx="75" cy="18" r="8" fill="#f4e4bc" stroke="#2a2a2a" strokeWidth="1" />
+    <circle cx="88" cy="18" r="8" fill="#f4e4bc" stroke="#2a2a2a" strokeWidth="1" />
     <text x="12" y="25" fontSize="16" fontWeight="bold" fill="#f4e4bc">$0</text>
   </svg>
 );
@@ -138,19 +169,19 @@ const CityHallIcon = () => (
 // --- APP LOGIC ---
 
 const BUILDING_DATA = [
-  { name: 'Ranch', count: 6, income: '$1', condition: 'x EMPTY AND ADJACENT PARCEL', icon: <RanchIcon /> },
-  { name: 'Mine', count: 6, income: '$3', condition: 'x ADJACENT MOUNTAIN', icon: <MineIcon /> },
-  { name: 'Drugstore', count: 4, income: '$3', condition: 'x RANCH AND ADJACENT HOUSE', icon: <DrugstoreIcon /> },
-  { name: 'Bank', count: 4, income: '$3', condition: 'x MINE AND ADJACENT HOUSE', icon: <BankIcon /> },
-  { name: 'Saloon', count: 3, income: '$5', condition: 'x ADJACENT HOUSE', icon: <SaloonIcon /> },
-  { name: 'Hotel', count: 3, income: '$6', condition: 'COUNTS AS TWO HOUSES', icon: <HotelIcon /> },
-  { name: 'Church', count: 2, income: '$0', condition: 'NO ATTACKS ON ADJACENT BUILDINGS', icon: <ChurchIcon /> },
-  { name: 'Prison', count: 2, income: '$0', condition: 'GET TWO REVOLVERS', icon: <PrisonIcon /> },
-  { name: 'Blacksmith', count: 2, income: '$5+', condition: 'ROAD SYSTEM + BUILD HOUSE', icon: <BlacksmithIcon /> },
-  { name: 'General Store', count: 2, income: '$3/$6', condition: 'ROAD SYSTEM + ADJACENT HOUSES', icon: <GeneralStoreIcon /> },
-  { name: 'School', count: 2, income: '-', condition: 'ROAD SYSTEM + BUILD 3 HOUSES', icon: <SchoolIcon /> },
-  { name: 'Train Station', count: 1, income: '-', condition: 'ALONG A STRAIGHT CROSS-MAP ROAD', icon: <TrainStationIcon /> },
-  { name: 'City Hall', count: 1, income: '-', condition: 'PLACED IMMEDIATELY IF DRAWN', icon: <CityHallIcon /> },
+  { name: 'Ranch', count: 6, income: '$1 per neighboring free parcel', condition: 'None', road: false, house: 0, icon: <RanchIcon /> },
+  { name: 'Mine', count: 6, income: '$3 per adjacent mountain', condition: 'None', road: false, house: 0, icon: <MineIcon /> },
+  { name: 'Drugstore', count: 4, income: '$3 per adj. House + $3 per Ranch owned', condition: 'Road + House', road: true, house: 1, icon: <DrugstoreIcon /> },
+  { name: 'Bank', count: 4, income: '$3 per adj. House + $3 per Mine owned', condition: 'Road + House', road: true, house: 1, icon: <BankIcon /> },
+  { name: 'Saloon', count: 3, income: '$5 per adjacent House', condition: 'Road + House', road: true, house: 1, icon: <SaloonIcon /> },
+  { name: 'Hotel', count: 3, income: '$6 fixed', condition: 'Road + House (Counts as 2 houses)', road: true, house: 1, icon: <HotelIcon /> },
+  { name: 'Church', count: 2, income: '-', condition: 'Road + House (Prevents attacks)', road: true, house: 1, icon: <ChurchIcon /> },
+  { name: 'Prison', count: 2, income: '-', condition: 'Road + House (+2 Firepower)', road: true, house: 1, icon: <PrisonIcon /> },
+  { name: 'Blacksmith', count: 2, income: '$5-$20 depending on round + $5 per Ranch', condition: 'Road + House', road: true, house: 1, icon: <BlacksmithIcon /> },
+  { name: 'General Store', count: 2, income: '$3 per adj. House ($6 if yours)', condition: 'Road + House', road: true, house: 1, icon: <GeneralStoreIcon /> },
+  { name: 'School', count: 2, income: '-', condition: 'Road + 3 Houses', road: true, house: 3, icon: <SchoolIcon /> },
+  { name: 'Train Station', count: 1, income: 'VP based on City Houses', condition: 'Along a straight cross-map road', road: true, house: 0, icon: <TrainStationIcon /> },
+  { name: 'City Hall', count: 1, income: '-', condition: 'Road + Connected system', road: true, house: 0, icon: <CityHallIcon /> },
 ];
 
 const PLAYER_COLORS = [
@@ -267,6 +298,7 @@ export default function App() {
         </h2>
       </header>
 
+      {/* Player Selection */}
       <section className="w-full max-w-6xl mb-8 bg-[#e8d5a6] p-6 rounded-md shadow-lg border-2 border-[#8b5a2b]">
         <div className="flex items-center justify-center gap-2 mb-8">
           <Users className="w-6 h-6 text-[#5c4033]" />
@@ -306,6 +338,7 @@ export default function App() {
       {setup.buildings.length > 0 && (
         <div className="max-w-6xl w-full flex flex-col gap-8">
           
+          {/* Turn Order */}
           <div className="w-full bg-[#e8d5a6] p-6 rounded-md shadow-lg border-2 border-[#8b5a2b]">
             <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-[#5c4033] mb-6 text-center">Round 1 Turn Order</h3>
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
@@ -323,6 +356,7 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 gap-8">
+            {/* Map Section */}
             <div className="bg-[#e8d5a6] p-6 rounded-md shadow-lg border-2 border-[#8b5a2b] flex flex-col items-center relative">
               <div className="w-full flex justify-between items-center mb-6 border-b border-[#a0785a] pb-2">
                 <div className="flex items-center gap-2">
@@ -374,6 +408,7 @@ export default function App() {
               </div>
             </div>
 
+            {/* Building Track Section */}
             <div className="bg-[#e8d5a6] p-6 rounded-md shadow-lg border-2 border-[#8b5a2b]">
               <div className="flex items-center justify-between mb-6 border-b border-[#a0785a] pb-2">
                 <div className="flex items-center gap-2">
@@ -424,6 +459,7 @@ export default function App() {
             </div>
           </div>
 
+          {/* REFERENCE SECTION */}
           <div className="w-full bg-[#e8d5a6] rounded-md shadow-lg border-2 border-[#8b5a2b] overflow-hidden">
             <div className="bg-[#5c4033] p-4 text-[#f4e4bc] flex items-center gap-2">
               <Landmark className="w-5 h-5" />
@@ -437,17 +473,21 @@ export default function App() {
                     <th className="p-4 text-center">Icon</th>
                     <th className="p-4 text-center">Qty</th>
                     <th className="p-4">Building Name</th>
-                    <th className="p-4 text-center">Base Income</th>
-                    <th className="p-4">Condition / Notes</th>
+                    <th className="p-4 text-center">Reqs</th>
+                    <th className="p-4 text-center">Income</th>
+                    <th className="p-4">Placement / Notes</th>
                   </tr>
                 </thead>
                 <tbody className="text-[11px]">
                   <tr className="border-b border-[#8b5a2b]/20 bg-[#f4e4bc]/50">
                     <td className="p-4 flex justify-center"><div className="w-10 h-10"><HouseIcon /></div></td>
-                    <td className="p-4 text-center font-bold">20</td>
-                    <td className="p-4 font-bold uppercase">House & Town House</td>
+                    <td className="p-4 text-center font-bold">19+</td>
+                    <td className="p-4 font-bold uppercase">House / Town House</td>
+                    <td className="p-4 text-center">
+                      <div className="flex justify-center"><RoadReqIcon /></div>
+                    </td>
                     <td className="p-4 text-center font-bold">-</td>
-                    <td className="p-4 italic text-[#5c4033]">Fundamental residential units used for income synergy.</td>
+                    <td className="p-4 italic text-[#5c4033]">Houses are never bought; they enter play when buildings are built. Townhouses replace houses.</td>
                   </tr>
                   {BUILDING_DATA.map((b, idx) => (
                     <tr key={idx} className={`border-b border-[#8b5a2b]/20 ${idx % 2 === 0 ? 'bg-[#e1c699]/30' : 'bg-transparent'}`}>
@@ -460,12 +500,26 @@ export default function App() {
                       <td className="p-4 font-bold uppercase tracking-tight">
                         {b.name}
                       </td>
+                      <td className="p-4">
+                        <div className="flex items-center justify-center gap-2">
+                          {b.road && <RoadReqIcon />}
+                          {b.house > 0 && <HouseReqIcon count={b.house} />}
+                        </div>
+                      </td>
                       <td className="p-4 text-center font-bold text-green-800 text-sm">{b.income}</td>
-                      <td className="p-4 font-semibold text-[#4a3628] tracking-wide">{b.condition}</td>
+                      <td className="p-4 font-semibold text-[#4a3628] tracking-wide leading-tight">{b.condition}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+            
+            <div className="bg-[#8b5a2b]/10 p-3 border-t border-[#8b5a2b]/30">
+              <div className="flex flex-wrap gap-6 text-[10px] font-bold text-[#5c4033] justify-center">
+                <div className="flex items-center gap-2 font-black uppercase text-xs">Legend:</div>
+                <div className="flex items-center gap-2"><RoadReqIcon /> Connected to Road</div>
+                <div className="flex items-center gap-2"><HouseReqIcon count={1} /> Build House(s)</div>
+              </div>
             </div>
           </div>
 
